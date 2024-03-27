@@ -26,7 +26,7 @@ namespace Сloudfactory.MessageBroker.Controllers
 
             if (responseVal != null)
             {
-                return Ok();
+                return Ok(responseVal?.Body?.ToString());
             }
             else
             {

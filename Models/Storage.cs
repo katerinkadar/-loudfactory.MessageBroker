@@ -42,6 +42,8 @@ namespace Сloudfactory.MessageBroker.Models
             var responsePath = Path.Combine(_storageDirectory, $"{key}.resp");
             if (!File.Exists(responsePath)) { return null; }
             var responseJson = File.ReadAllText(responsePath);
+            if (responseJson == null) return null;
+            DeleteResponse(key);
             return JsonConvert.DeserializeObject<Response>(responseJson);
         }
 
@@ -65,7 +67,8 @@ namespace Сloudfactory.MessageBroker.Models
 
         public void DeleteResponse(string key)
         {
-            throw new NotImplementedException();
+            var requestPath = Path.Combine(_storageDirectory, $"{key}.resp");
+            File.Delete(requestPath);
         }
     }
 }
