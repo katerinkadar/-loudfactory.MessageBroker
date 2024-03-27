@@ -4,7 +4,7 @@
     {
         void SaveRequest(string key, Request request);
         void SaveResponse(string key, Response response);
-        Request LoadRequest(string key);
+        Request? LoadRequest(string key);
         Response LoadResponse(string key);
         void DeleteRequest(string key);
         void DeleteResponse(string key);

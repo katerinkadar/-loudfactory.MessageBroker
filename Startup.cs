@@ -16,6 +16,7 @@ namespace Сloudfactory.MessageBroker
             // Добавление сервисов, необходимых в проекте (например, хранилище, клиенты и т. д.)
             services.AddScoped<IStorage, Storage>();
             services.AddScoped<IClients, Clients>();
+            services.AddScoped<IBroker, Broker>();            
 
             // Добавление контроллера в сервисы
             services.AddControllers();

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -8,6 +10,7 @@ namespace Сloudfactory.MessageBroker.Models
     {
         private readonly IStorage _storage;
         private readonly IClients _clients;
+        int _maxAttempts = 3;
         // Другие зависимости
 
         public Broker(IStorage storage, IClients clients)
@@ -17,7 +20,7 @@ namespace Сloudfactory.MessageBroker.Models
             // Инициализация других зависимостей
         }
 
-        public void SendRequest(Request request)
+        public Response SendRequest(Request request)
         {
             string key = CalculateRequestKey(request);
 
@@ -28,35 +31,37 @@ namespace Сloudfactory.MessageBroker.Models
             else
             {
                 var existingRequests = _storage.LoadRequest(key);
-               // existingRequests.Add(request);
-                _storage.SaveRequest(key, existingRequests);
-            }
-            //// Отправка запроса клиентам и сохранение в хранилище
-            //string key = CalculateRequestKey(request);
-
-            //_storage.SaveRequest(key, request);
-
-            //if (!_storage.Exists(key))
-            //{
-            //    _storage.SaveRequest(key, request);
-            //}
-            //else
-            //{
-            //    // Если запрос с таким ключом уже существует, добавляем текущий запрос в коллекцию запросов с данным ключом
-            //    Request existingRequests = _storage.LoadRequest(key);
-            //    existingRequests.Add(request);
-            //    _storage.SaveRequest(key, existingRequests);
-            //}
-            //var response = GetResponse(request);
-            //_storage.SaveResponse(key, response);
-
-            //ReceiveResponse(response);
+               _storage.SaveRequest(key, existingRequests);
+            }           
+            return ReceiveResponse(key);
         }
-
-        public void ReceiveResponse(Response response)
+        
+        public Response ReceiveResponse(string key)
         {
-            // Прием ответа от клиента и передача вызывающему
-            _clients.SendResponse(response);
+            int attempts = 0;
+
+            while (attempts < _maxAttempts) // Цикл с ограничением попыток
+            {
+                var responseVal = _storage.LoadResponse(key);
+
+                if (responseVal == null)
+                {
+                    Thread.Sleep(1000);
+                    attempts++; // Увеличиваем счетчик попыток
+                }
+                else
+                {
+                    return responseVal;
+                }
+            }
+            if (attempts >= _maxAttempts)
+            {
+                //токен отмены TODO потом написать 
+                _storage.DeleteRequest(key);
+                return null;
+            }
+
+            return new Response(); // По достижении максимального количества попыток возвращаем пустой ответ или генерируем исключение
         }
 
         public void CollapseRequests()
@@ -94,12 +99,7 @@ namespace Сloudfactory.MessageBroker.Models
             {
                 var bytes = Encoding.UTF8.GetBytes(input);
                 var hashBytes = md5.ComputeHash(bytes);
-                var sb = new StringBuilder();
-                foreach (var b in hashBytes)
-                {
-                    sb.Append(b.ToString("x2"));
-                }
-                return sb.ToString();
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();                 
             }
         }
 
@@ -141,6 +141,8 @@ namespace Сloudfactory.MessageBroker.Models
                 Body = request.Body+ " "+ new Random().Next(100),
                 StatusCode = 1
             }  ;
-        }       
+        }
+
+        
     }
 }

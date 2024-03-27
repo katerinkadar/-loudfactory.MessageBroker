@@ -2,8 +2,9 @@
 {
     public interface IBroker
     {
-        void SendRequest(Request request);
-        void ReceiveResponse(Response response);
+        Response SendRequest(Request request);
+        Response ReceiveResponse(string key);
         void CollapseRequests();
+       
     }
 }

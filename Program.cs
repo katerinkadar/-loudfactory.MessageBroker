@@ -1,12 +1,18 @@
+using System.Runtime.ConstrainedExecution;
 using Ñloudfactory.MessageBroker;
+using Ñloudfactory.MessageBroker.Models;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args)
-    ;
+        var builder = WebApplication.CreateBuilder(args);
+        //  CreateHostBuilder(args).Build().Run();
 
+        builder.Services.AddScoped<IStorage, Storage>();
+        builder.Services.AddScoped<IClients, Clients>();
+        builder.Services.AddScoped<IBroker, Broker>();
+       
         // Add services to the container.
 
         builder.Services.AddControllers();
@@ -30,8 +36,9 @@ internal class Program
         app.MapControllers();
 
         app.Run();
+        
     }
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
+    public static IHostBuilder CreateBuilder(string[] args) =>
        Host.CreateDefaultBuilder(args)
            .ConfigureWebHostDefaults(webBuilder =>
            {

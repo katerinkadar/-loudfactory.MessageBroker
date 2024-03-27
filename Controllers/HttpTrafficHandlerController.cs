@@ -22,17 +22,16 @@ namespace Сloudfactory.MessageBroker.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Request request)
         {
-            _broker.SendRequest(request); // Отправка запроса брокеру
+           var responseVal = _broker.SendRequest(request); // Отправка запроса брокеру
 
-            return Ok();
-        }
-
-        [HttpGet]
-        public IActionResult Get()
-        {
-            _broker.CollapseRequests(); // Схлопывание запросов и отправка объединенных запросов
-
-            return Ok();
+            if (responseVal != null)
+            {
+                return Ok();
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
         // Другие методы контроллера
