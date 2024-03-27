@@ -37,11 +37,5 @@ internal class Program
 
         app.Run();
         
-    }
-    public static IHostBuilder CreateBuilder(string[] args) =>
-       Host.CreateDefaultBuilder(args)
-           .ConfigureWebHostDefaults(webBuilder =>
-           {
-               webBuilder.UseStartup<Startup>();
-           });
+    }   
 }

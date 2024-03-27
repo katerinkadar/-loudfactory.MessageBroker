@@ -10,7 +10,7 @@ namespace Сloudfactory.MessageBroker.Models
     {
         private readonly IStorage _storage;
         private readonly IClients _clients;
-        int _maxAttempts = 3;
+        int _maxAttempts = 10;
         // Другие зависимости
 
         public Broker(IStorage storage, IClients clients)
