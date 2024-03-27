@@ -5,7 +5,7 @@ namespace Сloudfactory.MessageBroker.Models
 {
     public class Storage : IStorage
     {
-        private readonly string _storageDirectory = "..\\TestFiles";
+        private readonly string _storageDirectory = @"..\TestFilesAll";
 
         public Storage()
         {           

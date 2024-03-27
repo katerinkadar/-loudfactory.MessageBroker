@@ -57,7 +57,7 @@ namespace Сloudfactory.MessageBroker.Models
             if (attempts >= _maxAttempts)
             {
                 //токен отмены TODO потом написать 
-                _storage.DeleteRequest(key);
+                //_storage.DeleteRequest(key);
                 return null;
             }
 
