@@ -19,18 +19,38 @@ namespace Сloudfactory.MessageBroker.Controllers
             _clients = clients;
         }
 
+        /// <summary>
+        /// Запрос к брокеру сообщений
+        /// </summary>
+        /// <param name="request">Запрос</param>
+        /// <returns>Ответ запроса</returns>
         [HttpPost]
         public IActionResult Post([FromBody] Request request)
         {
-           var responseVal = _broker.SendRequest(request); // Отправка запроса брокеру
+            try
+            {
+                var responseVal = _broker.SendRequest(request); // Отправка запроса брокеру
 
-            if (responseVal != null)
-            {
-                return Ok(responseVal?.Body?.ToString());
+                if (responseVal != null)
+                {
+                    return Ok(responseVal?.Body?.ToString());
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
+                }
             }
-            else
+            catch (BrokerUnavailableException ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, ex.Message);
+            }
+            catch (TimeoutException ex)
+            {
+                return StatusCode(StatusCodes.Status504GatewayTimeout, "Время ожидания превышенно: " + ex.Message);
+            }            
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера: " + ex.Message);
             }
         }     
     }
