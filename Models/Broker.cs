@@ -10,23 +10,29 @@ namespace Сloudfactory.MessageBroker.Models
     {
         private readonly IStorage _storage;
         private readonly IClients _clients;
-        int _maxAttempts = 10;
-        // Другие зависимости
+        int _maxAttempts = 10;        
 
         public Broker(IStorage storage, IClients clients)
         {
             _storage = storage;
-            _clients = clients;
-            // Инициализация других зависимостей
+            _clients = clients;            
         }
 
+        /// <summary>
+        /// Оправка запроса
+        /// </summary>
+        /// <param name="request">Запрос</param>
+        /// <returns>Ответ запроса</returns>
         public Response SendRequest(Request request)
         {
+            Console.WriteLine("Broker SendRequest "+ request.ToString());
             string key = CalculateRequestKey(request);
-
+            
+            Console.WriteLine("Broker SendRequest key:" + key);
             if (!_storage.Exists(key))
             {
                 _storage.SaveRequest(key, request);
+                Console.WriteLine("Broker SendRequest Такого ключа раньше не было:" + key);
             }
             else
             {
@@ -36,8 +42,14 @@ namespace Сloudfactory.MessageBroker.Models
             return ReceiveResponse(key);
         }
         
+        /// <summary>
+        /// Получить ответ запроса
+        /// </summary>
+        /// <param name="key">Ключ запроса</param>
+        /// <returns>Ответ</returns>
         public Response ReceiveResponse(string key)
         {
+            Console.WriteLine("Broker ReceiveResponse key" + key);
             int attempts = 0;
 
             while (attempts < _maxAttempts) // Цикл с ограничением попыток
@@ -56,9 +68,9 @@ namespace Сloudfactory.MessageBroker.Models
             }
             if (attempts >= _maxAttempts)
             {
-                //токен отмены TODO потом написать 
+                //TODO потом написать токен отмены 
                 //_storage.DeleteRequest(key);
-                return null;
+                throw new TimeoutException("Превышено время ожидания ответа.");               
             }
 
             return new Response(); // По достижении максимального количества попыток возвращаем пустой ответ или генерируем исключение

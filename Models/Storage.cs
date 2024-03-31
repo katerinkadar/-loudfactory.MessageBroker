@@ -15,8 +15,8 @@ namespace Сloudfactory.MessageBroker.Models
         {
             if (!Directory.Exists(_storageDirectory))
             {
-                //Directory.CreateDirectory(_storageDirectory); // Создаем директорию, если ее нет
-                throw new BrokerUnavailableException("Брокер не доступен в папке: " + _storageDirectory);
+                Directory.CreateDirectory(_storageDirectory); // Создаем директорию, если ее нет
+                //throw new BrokerUnavailableException("Брокер не доступен в папке: " + _storageDirectory);
             }
             var requestPath = Path.Combine(_storageDirectory, $"{key}.req");
             var requestJson = JsonConvert.SerializeObject(request);
